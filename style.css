@@ -1,0 +1,120 @@
+/* Reset and body styling */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #2e2e2e;
+    font-family: Arial, sans-serif;
+}
+
+/* Main table styling */
+.table {
+    width: 80vw;
+    height: 80vh;
+    display: grid;
+    grid-template-rows: 1fr 2fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 10px;
+    background-color: green;
+    border-radius: 10px;
+    position: relative;
+}
+
+/* Center area for piles */
+.center-area {
+    grid-row: 2 / 3;
+    grid-column: 2 / 3;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #228B22;
+    border-radius: 10px;
+    position: relative;
+}
+
+/* Styling for draw and discard piles */
+.pile {
+    width: 80px;
+    height: 120px;
+    background-color: #fff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pile.discard-pile {
+    border: 2px dashed #666; /* Create a dashed border for the discard pile */
+    background-color: transparent; /* Ensure the background is transparent */
+    color: #666; /* Set a placeholder text color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-style: italic; /* Italicize the placeholder text */
+}
+
+.pile.discard-pile:before {
+    content: "Empty"; /* Placeholder text to indicate an empty discard pile */
+    font-size: 0.8em;
+}
+
+
+/* Player area styling */
+.player-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #006400;
+    border-radius: 10px;
+    color: white;
+    font-size: 20px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.player-top {
+    grid-row: 1 / 2;
+    grid-column: 2 / 3;
+}
+
+.player-right {
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+}
+
+.player-bottom {
+    grid-row: 3 / 4;
+    grid-column: 2 / 3;
+}
+
+.player-left {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+}
+
+/* Styling for the player's hand of cards */
+.hand {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+
+/* Adjustments for the cards from cards.css */
+.hand .card {
+    width: 64px;
+    height: 88px;
+    margin: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    text-align: center;
+}
