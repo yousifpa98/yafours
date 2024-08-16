@@ -94,7 +94,6 @@ const session = {
   round: 1, // Current round
 };
 
-
 // Player objects with their respective attributes
 const players = [
   {
@@ -155,20 +154,18 @@ let discardPile = [];
 
 // Function to deal cards to players and set up draw/discard piles
 const dealHands = () => {
-  // Step 1: Shuffle the deck and create a playDeck
+  console.log("Dealing hands...");
   let playDeck = shuffleDeck(deck);
 
-  // Step 2: Deal cards to each player
   for (let i = 0; i < players.length; i++) {
     players[i].hand = playDeck.splice(0, rules.playerHand); // Deal cards to player
-    updateHandValue(i); // Update hand value after dealing
+    updateHandValue(i);
+    console.log(`${players[i].name} has been dealt:`, players[i].hand);
   }
 
-  // Step 3: Assign the remaining cards to the drawPile
   drawPile = playDeck;
-
-  // Step 4: Move the top card from the drawPile to start the discardPile
   discardPile.push(drawPile.shift());
+  console.log("Initial draw pile and discard pile set.");
 };
 
 // Function to update a player's hand value
@@ -177,10 +174,14 @@ const updateHandValue = (playerIndex) => {
     (acc, card) => acc + (rules.scoreRules[card.rank] || 0),
     0
   );
+  console.log(
+    `${players[playerIndex].name}'s hand value is now: ${players[playerIndex].handValue}`
+  );
 };
 
 // Function to render the game state
 const renderGame = () => {
+  console.log("Rendering game state...");
   const playerHandDiv = document.getElementById("playerHand");
   const drawPileDiv = document.getElementById("drawPile");
   const discardPileDiv = document.getElementById("discardPile");
@@ -219,34 +220,36 @@ const renderGame = () => {
   } else {
     discardPileDiv.classList.add("empty"); // Show "Empty" if discard pile is empty
   }
+
+  // Update the scoreboard
+  updateScoreboard();
 };
 
 // Function to initialize the game
 const initializeGame = () => {
-  dealHands(); // Deal the cards
-  renderGame(); // Render the game state
+  console.log("Initializing game...");
+  dealHands();
+  renderGame();
 
-  console.log(players[0].handValue); // Check hand value after dealing
-
-  // Add event listener for discard button
   const discardButton = document.getElementById("discardButton");
-  discardButton.addEventListener("click", discardSelection);
+  discardButton.addEventListener("click", () => {
+    discardSelection();
+  });
 
-  // Add event listener to validate selection
-  const playerHandDiv = document.getElementById("playerHand");
-  playerHandDiv.addEventListener("change", validateSelection);
-
-  // Add event listener for drawing a card
   const drawPileDiv = document.getElementById("drawPile");
   drawPileDiv.addEventListener("click", drawCard);
 
-  // Add event listener for sorting the hand
+  const playerHandDiv = document.getElementById("playerHand");
+  playerHandDiv.addEventListener("change", validateSelection);
+
   const sortButton = document.getElementById("sortButton");
   sortButton.addEventListener("click", sortHand);
 
-  // Add event listener for calling Yafours
   const yafoursButton = document.getElementById("yafoursButton");
   yafoursButton.addEventListener("click", callYafours);
+
+  updateScoreboard();
+  playerTurn();
 };
 
 // Function to validate selection and enable/disable the discard button
@@ -277,7 +280,7 @@ const isValidSelection = (selectedCards) => {
     return { rank: rank === "Joker" ? "Wildcard" : rank, suit };
   });
 
-  const uniqueValues = [...new Set(cardValues.map(card => card.rank))];
+  const uniqueValues = [...new Set(cardValues.map((card) => card.rank))];
 
   // Handle matching ranks or Jokers
   if (uniqueValues.length === 1 || uniqueValues.includes("Wildcard")) {
@@ -285,17 +288,28 @@ const isValidSelection = (selectedCards) => {
   }
 
   // Check for valid sequences (e.g., 2-3-4 of the same suit)
-  if (uniqueValues.length === selectedCards.length && selectedCards.length >= 3) { // Ensure sequence is at least 3 cards
+  if (
+    uniqueValues.length === selectedCards.length &&
+    selectedCards.length >= 3
+  ) {
+    // Ensure sequence is at least 3 cards
     // Sort the card values based on rank order (accounting for Ace, 2, ..., K)
-    const sortedCards = cardValues.sort((a, b) => rules.scoreRules[a.rank] - rules.scoreRules[b.rank]);
+    const sortedCards = cardValues.sort(
+      (a, b) => rules.scoreRules[a.rank] - rules.scoreRules[b.rank]
+    );
 
     // Check if all cards are of the same suit
-    const sameSuit = sortedCards.every(card => card.suit === sortedCards[0].suit);
+    const sameSuit = sortedCards.every(
+      (card) => card.suit === sortedCards[0].suit
+    );
 
     // Check if they form a consecutive sequence
     const isConsecutive = sortedCards.every((card, index, arr) => {
       if (index === 0 || card.rank === "Wildcard") return true; // Skip first card and Wildcards
-      return rules.scoreRules[card.rank] === rules.scoreRules[arr[index - 1].rank] + 1;
+      return (
+        rules.scoreRules[card.rank] ===
+        rules.scoreRules[arr[index - 1].rank] + 1
+      );
     });
 
     if (sameSuit && isConsecutive) {
@@ -331,6 +345,7 @@ const isValidSelection = (selectedCards) => {
 
 // Function to handle the discard selection
 const discardSelection = () => {
+  console.log(`${players[currentPlayerIndex].name} is discarding...`);
   const playerHandDiv = document.getElementById("playerHand");
   const selectedCards = playerHandDiv.querySelectorAll(".card-input:checked");
 
@@ -341,73 +356,72 @@ const discardSelection = () => {
     const cardDiv = cardLabel.querySelector(".card");
     const cardClassString = cardDiv.className;
 
-    const cardIndex = players[0].hand.findIndex(
+    const cardIndex = players[currentPlayerIndex].hand.findIndex(
       (card) => card.classString === cardClassString
     );
 
     if (cardIndex !== -1) {
-      const [discardedCard] = players[0].hand.splice(cardIndex, 1);
+      const [discardedCard] = players[currentPlayerIndex].hand.splice(
+        cardIndex,
+        1
+      );
       newDiscards.push(discardedCard); // Collect discarded cards
       playerHandDiv.removeChild(cardLabel);
     }
   });
 
-  // Add the new discards to the discard pile
   if (newDiscards.length > 1) {
-    // Sort the new discards to get the highest card on top
     newDiscards.sort(
       (a, b) => rules.scoreRules[b.rank] - rules.scoreRules[a.rank]
     );
   }
   discardPile.push(...newDiscards);
 
-  updateHandValue(0); // Update hand value after discarding
-
+  updateHandValue(currentPlayerIndex); // Update hand value after discarding
+  console.log(`${players[currentPlayerIndex].name} discarded:`, newDiscards);
   renderGame(); // Re-render the game to reflect the discard
 
-  // Disable the discard button again after discarding
   document.getElementById("discardButton").disabled = true;
   document.getElementById("discardButton").classList.add("disabled");
 };
 
 // Function to handle drawing a card from the draw pile
 const drawCard = () => {
+  console.log(`${players[currentPlayerIndex].name} is drawing a card...`);
   if (drawPile.length > 0) {
-    // Remove the top card from the draw pile and add it to the player's hand
     const drawnCard = drawPile.shift();
-    players[0].hand.push(drawnCard);
+    players[currentPlayerIndex].hand.push(drawnCard);
 
-    updateHandValue(0); // Update hand value after drawing
-
-    // Re-render the game to reflect the new hand and draw pile state
+    updateHandValue(currentPlayerIndex);
+    console.log(`${players[currentPlayerIndex].name} drew:`, drawnCard);
     renderGame();
+    nextPlayerTurn(); // Move to the next player's turn after drawing
   }
 };
 
 // Function to sort the player's hand
 const sortHand = () => {
-  // Group cards by rank
-  const grouped = players[0].hand.reduce((acc, card) => {
+  console.log(`${players[currentPlayerIndex].name} is sorting their hand...`);
+  const grouped = players[currentPlayerIndex].hand.reduce((acc, card) => {
     const rank = card.rank === "Joker" ? "Joker" : card.rank;
     acc[rank] = acc[rank] || [];
     acc[rank].push(card);
     return acc;
   }, {});
 
-  // Find all valid discards and prioritize by value
   let potentialDiscards = [];
 
-  // Check for groups of 2 or more cards with the same rank (pairs, triples, etc.)
   for (const rank in grouped) {
     if (grouped[rank].length > 1) {
       potentialDiscards.push(grouped[rank]);
     }
   }
 
-  // Check for sequences of 3 or more cards
   const suits = ["spades", "hearts", "diams", "clubs"];
   suits.forEach((suit) => {
-    const suitedCards = players[0].hand.filter((card) => card.suit === suit);
+    const suitedCards = players[currentPlayerIndex].hand.filter(
+      (card) => card.suit === suit
+    );
     suitedCards.sort(
       (a, b) => rules.scoreRules[a.rank] - rules.scoreRules[b.rank]
     );
@@ -428,59 +442,57 @@ const sortHand = () => {
     if (sequence.length >= 3) potentialDiscards.push(sequence);
   });
 
-  // Flatten and prioritize by highest card values in the groups or sequences
   potentialDiscards.sort((a, b) => {
     const maxA = Math.max(...a.map((card) => rules.scoreRules[card.rank]));
     const maxB = Math.max(...b.map((card) => rules.scoreRules[card.rank]));
     return maxB - maxA;
   });
 
-  // Add the remaining cards that aren't part of any group or sequence
-  const remainingCards = players[0].hand.filter(
+  const remainingCards = players[currentPlayerIndex].hand.filter(
     (card) => !potentialDiscards.flat().includes(card)
   );
 
-  // Sort remaining cards by rank (high to low)
-  remainingCards.sort((a, b) => rules.scoreRules[b.rank] - rules.scoreRules[a.rank]);
+  remainingCards.sort(
+    (a, b) => rules.scoreRules[b.rank] - rules.scoreRules[a.rank]
+  );
 
-  // Combine the sorted potential discards with the remaining sorted cards
   const sortedHand = potentialDiscards.flat().concat(remainingCards);
+  players[currentPlayerIndex].hand = sortedHand;
 
-  // Update the player's hand with the sorted order
-  players[0].hand = sortedHand;
-
-  updateHandValue(0); // Update hand value after sorting
-
-  // Re-render the hand to reflect the new order
+  updateHandValue(currentPlayerIndex);
+  console.log(
+    `${players[currentPlayerIndex].name} sorted their hand:`,
+    players[currentPlayerIndex].hand
+  );
   renderGame();
 };
 
 // Function to call Yafours
 const callYafours = () => {
-  // Check if player 1's hand value is 6 or less
-  if (players[0].handValue <= 6) {
-    let lowestValue = players[0].handValue;
-    let winnerIndex = 0;
+  console.log(
+    `${players[currentPlayerIndex].name} is attempting to call Yafours...`
+  );
+  if (players[currentPlayerIndex].handValue <= 6) {
+    let lowestValue = players[currentPlayerIndex].handValue;
+    let winnerIndex = currentPlayerIndex;
 
-    // Compare against other players
-    for (let i = 1; i < players.length; i++) {
+    for (let i = 0; i < players.length; i++) {
       if (players[i].handValue < lowestValue) {
         lowestValue = players[i].handValue;
         winnerIndex = i;
       }
     }
 
-    if (winnerIndex === 0) {
-      console.log("Yafours called correctly! Player 1 wins the round.");
+    if (winnerIndex === currentPlayerIndex) {
+      console.log(
+        `${players[currentPlayerIndex].name} called Yafours correctly!`
+      );
     } else {
       console.log(
-        `Yafours called incorrectly! Player ${
-          winnerIndex + 1
-        } wins the round with a hand value of ${lowestValue}.`
+        `${players[currentPlayerIndex].name} called Yafours incorrectly!`
       );
     }
 
-    // Update scores
     updateScores(winnerIndex);
   } else {
     console.log("Cannot call Yafours! Hand value is greater than 6.");
@@ -491,29 +503,93 @@ const callYafours = () => {
 const updateScores = (winnerIndex) => {
   for (let i = 0; i < players.length; i++) {
     if (i === winnerIndex) {
-      // Winner scores 0 points
       players[i].points += 0;
     } else {
-      // Calculate score, considering black fours and ignoring red fours for now
       const handScore = players[i].handValue;
       const blackFours = players[i].hand.filter(
-        (card) => card.rank === "4" && card.suit === "spades" || card.suit === "clubs"
+        (card) =>
+          card.rank === "4" && (card.suit === "spades" || card.suit === "clubs")
       ).length;
       players[i].points += handScore - blackFours * 4;
     }
   }
 
-  console.log("Scores after this round:", players.map(p => p.points));
-
-  // Prepare for the next round or end the game
+  console.log(
+    "Scores after this round:",
+    players.map((p) => p.points)
+  );
+  updateScoreboard();
   prepareNextRound();
+};
+
+// Function to update the scoreboard display
+const updateScoreboard = () => {
+  document.getElementById(
+    "player1Score"
+  ).textContent = `Player 1: ${players[0].points}`;
+  document.getElementById(
+    "player2Score"
+  ).textContent = `Player 2: ${players[1].points}`;
+  document.getElementById(
+    "player3Score"
+  ).textContent = `Player 3: ${players[2].points}`;
+  document.getElementById(
+    "player4Score"
+  ).textContent = `Player 4: ${players[3].points}`;
+};
+
+// Global variable to track the current player's turn
+let currentPlayerIndex = 0;
+
+// Function to handle advancing to the next player's turn
+const nextPlayerTurn = () => {
+  currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+  if (currentPlayerIndex === 0) {
+    session.round++;
+  }
+  playerTurn();
+};
+
+// Function to manage a player's turn
+const playerTurn = () => {
+  console.log(`It's ${players[currentPlayerIndex].name}'s turn.`);
+  if (currentPlayerIndex === 0) {
+    const discardButton = document.getElementById("discardButton");
+    discardButton.addEventListener("click", () => {
+      discardSelection();
+    });
+
+    const drawPileDiv = document.getElementById("drawPile");
+    drawPileDiv.addEventListener("click", drawCard);
+  } else {
+    setTimeout(() => {
+      sortHand();
+      const bestDiscard = players[currentPlayerIndex].hand.pop();
+      discardPile.push(bestDiscard);
+      updateHandValue(currentPlayerIndex);
+
+      if (drawPile.length > 0) {
+        const drawnCard = drawPile.shift();
+        players[currentPlayerIndex].hand.push(drawnCard);
+        updateHandValue(currentPlayerIndex);
+      }
+
+      if (players[currentPlayerIndex].handValue <= 6) {
+        callYafours();
+      }
+
+      renderGame();
+      nextPlayerTurn();
+    }, 1000);
+  }
 };
 
 // Function to prepare for the next round
 const prepareNextRound = () => {
   session.round++;
   session.dealer = (session.dealer + 1) % players.length;
-  initializeGame(); // Reinitialize the game for the next round
+  console.log(`Starting round ${session.round}...`);
+  initializeGame();
 };
 
 // Start the game when the page loads
