@@ -48,8 +48,8 @@ body, html {
 
 /* Specific styling for draw pile */
 .draw-pile .card.back {
-    width: 80px; /* Ensure this matches the width of the pile */
-    height: 120px; /* Ensure this matches the height of the pile */
+    width: 80px;
+    height: 120px;
     border-radius: 10px;
 }
 
@@ -69,7 +69,6 @@ body, html {
 /* Player area styling */
 .player-area {
     display: flex;
-    flex-direction: column; /* Adjusts layout to allow stacking of hand and button */
     justify-content: center;
     align-items: center;
     background-color: #006400;
@@ -95,6 +94,9 @@ body, html {
 .player-bottom {
     grid-row: 3 / 4;
     grid-column: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .player-left {
@@ -109,33 +111,14 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-bottom: 10px;
 }
 
-/* Discard button styling */
-.discard-button {
-    margin-top: 15px;
-    padding: 10px 20px;
-    font-size: 16px;
-    color: white;
-    background-color: #cc0000;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.2s ease;
+/* Button container styling */
+.button-container {
+    display: flex;
+    gap: 20px;
 }
-
-.discard-button:hover {
-    background-color: #ff0000;
-}
-
-/* Style for disabled discard button */
-button.disabled {
-    background-color: #ccc;
-    color: #666;
-    cursor: not-allowed;
-}
-
 
 /* Card styling adjustments */
 .playingCards .card {
@@ -156,4 +139,68 @@ button.disabled {
     transform: translateY(-10px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Action buttons styling */
+.action-button {
+    background-color: #006400;
+    border: none;
+    color: white;
+    padding: 15px;
+    font-size: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.action-button i {
+    pointer-events: none; /* Prevent the icon from triggering hover effects */
+}
+
+.action-button:hover {
+    background-color: #228B22;
+    transform: translateY(-2px);
+}
+
+.action-button:active {
+    background-color: #004d00;
+    transform: translateY(1px);
+}
+
+.action-button.disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.discard-button {
+    background-color: #8B0000;
+}
+
+.sort-button {
+    background-color: #1E90FF;
+}
+
+.sort-button:hover {
+    background-color: #4169E1;
+}
+
+.sort-button:active {
+    background-color: #104E8B;
+}
+
+.yafours-button {
+    background-color: #FFD700;
+}
+
+.yafours-button:hover {
+    background-color: #FFC300;
+}
+
+.yafours-button:active {
+    background-color: #FFB000;
 }

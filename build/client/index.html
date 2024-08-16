@@ -6,6 +6,7 @@
     <title>Card Game</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="CSS-Playing-Cards/cards.css">
+    <script src="https://kit.fontawesome.com/b36ea12d2e.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="table">
@@ -25,8 +26,21 @@
             <div id="playerHand" class="playingCards faceImages">
                 <!-- Player 1's hand will be populated by JavaScript -->
             </div>
-            <!-- Discard button -->
-            <button id="discardButton" class="discard-button">Discard Selected Cards</button>
+            <!-- Button container -->
+            <div class="button-container">
+                <!-- Discard button -->
+                <button id="discardButton" class="action-button discard-button">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <!-- Sort button -->
+                <button id="sortButton" class="action-button sort-button">
+                    <i class="fas fa-sort"></i>
+                </button>
+                <!-- Yafours button -->
+                <button id="yafoursButton" class="action-button yafours-button">
+                    <i class="fas fa-trophy"></i>
+                </button>
+            </div>
         </div>
         <div class="player-area player-left">CPU 3</div>
     </div>
