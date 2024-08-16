@@ -174,6 +174,10 @@ const initializeGame = () => {
   // Add event listener to validate selection
   const playerHandDiv = document.getElementById('playerHand');
   playerHandDiv.addEventListener('change', validateSelection);
+
+  // Add event listener for drawing a card
+  const drawPileDiv = document.getElementById('drawPile');
+  drawPileDiv.addEventListener('click', drawCard);
 };
 
 // Function to validate selection and enable/disable the discard button
@@ -199,13 +203,14 @@ const isValidSelection = (selectedCards) => {
   const cardValues = Array.from(selectedCards).map(cardInput => {
       const cardLabel = cardInput.parentElement;
       const cardDiv = cardLabel.querySelector('.card');
-      return cardDiv.querySelector('.rank').textContent;
+      const rank = cardDiv.querySelector('.rank').textContent;
+      return rank === "Joker" ? "Wildcard" : rank; // Treat Joker as a wildcard
   });
 
   const uniqueValues = [...new Set(cardValues)];
 
-  if (uniqueValues.length === 1) {
-      return true; // All cards have the same rank (a row)
+  if (uniqueValues.length === 1 || uniqueValues.includes("Wildcard")) {
+      return true; // All cards have the same rank (a row) or contain a Joker
   }
 
   if (uniqueValues.length === 2) {
@@ -214,7 +219,17 @@ const isValidSelection = (selectedCards) => {
           return counts;
       }, {});
 
-      return Object.values(valueCounts).every(count => count === 2);
+      if (valueCounts["Wildcard"]) {
+          // Handle cases with one or two Jokers
+          const nonWildcardValues = Object.keys(valueCounts).filter(v => v !== "Wildcard");
+          if (nonWildcardValues.length === 1) {
+              return true; // Valid when Jokers are used to match the same rank
+          } else if (nonWildcardValues.length === 2) {
+              return Object.values(valueCounts).every(count => count === 2 || valueCounts["Wildcard"] === 2);
+          }
+      } else {
+          return Object.values(valueCounts).every(count => count === 2); // Check for pairs
+      }
   }
 
   return false;
@@ -253,6 +268,18 @@ const discardSelection = () => {
   document.getElementById('discardButton').disabled = true;
   document.getElementById('discardButton').classList.add('disabled');
 };
+// Function to handle drawing a card from the draw pile
+const drawCard = () => {
+  if (drawPile.length > 0) {
+      // Remove the top card from the draw pile and add it to the player's hand
+      const drawnCard = drawPile.shift();
+      players[0].hand.push(drawnCard);
+
+      // Re-render the game to reflect the new hand and draw pile state
+      renderGame();
+  }
+};
+
 
 // Start the game when the page loads
 window.onload = initializeGame;
