@@ -10,10 +10,8 @@
 <body>
     <div class="table">
         <div class="center-area">
-            <div class="pile draw-pile playingCards">
-                <ul id="drawPile" class="deck">
-                    <!-- Draw pile will be populated by JavaScript -->
-                </ul>
+            <div id="drawPile" class="pile draw-pile playingCards">
+                <!-- Draw pile will be populated by JavaScript -->
             </div>
             <div class="pile discard-pile playingCards">
                 <ul id="discardPile" class="deck">
@@ -27,6 +25,8 @@
             <div id="playerHand" class="playingCards faceImages">
                 <!-- Player 1's hand will be populated by JavaScript -->
             </div>
+            <!-- Discard button -->
+            <button id="discardButton" class="discard-button">Discard Selected Cards</button>
         </div>
         <div class="player-area player-left">CPU 3</div>
     </div>
